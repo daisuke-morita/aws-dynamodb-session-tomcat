@@ -154,4 +154,9 @@ public class DynamoDBSessionStore extends StoreBase {
         DynamoUtils.deleteSession(dynamo, sessionTableName, id);
         keys.remove(id);
     }
+
+    @Override
+    public void processExpires() {
+        // Do nothing so that only ExpiredSessionReaper takes the responsibility to expire sessions
+    }
 }
