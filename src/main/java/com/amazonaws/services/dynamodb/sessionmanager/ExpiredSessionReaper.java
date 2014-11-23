@@ -65,6 +65,8 @@ public class ExpiredSessionReaper {
         this.expirationTimeInMillis = expirationTimeInMillis;
         this.logger = logger;
 
+        logger.info("ExpiredSessionReaper init");
+
         int initialDelay = new Random().nextInt((int)reaperInterval) + 1;
         executor = new ScheduledThreadPoolExecutor(1, new ExpiredSessionReaperThreadFactory());
         executor.scheduleAtFixedRate(
