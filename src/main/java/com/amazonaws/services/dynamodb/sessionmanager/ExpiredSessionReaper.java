@@ -124,6 +124,7 @@ public class ExpiredSessionReaper {
 
             scanResult = dynamo.scan(request);
             List<Map<String,AttributeValue>> items = scanResult.getItems();
+            logger.info("  sessions: " + items.size());
             for (Map<String, AttributeValue> item : items) {
                 if (isExpired(Long.parseLong(item.get(SessionTableAttributes.LAST_UPDATED_AT_ATTRIBUTE).getN()))) {
                     String sessionId = item.get(SessionTableAttributes.SESSION_ID_KEY).getS();
@@ -132,6 +133,7 @@ public class ExpiredSessionReaper {
                 }
             }
         } while (scanResult.getLastEvaluatedKey() != null);
+        logger.info("  done.");
     }
 
     /**

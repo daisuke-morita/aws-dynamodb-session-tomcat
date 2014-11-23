@@ -134,6 +134,8 @@ public class DynamoDBSessionManager extends PersistentManagerBase {
 
         // Grab the container's logger
         logger = getContainer().getLogger();
+        logger.info("table: " + this.tableName);
+        logger.info("reaperInterval: " + this.reaperInterval);
 
         AWSCredentialsProvider credentialsProvider = initCredentials();
         AmazonDynamoDBClient dynamo = new AmazonDynamoDBClient(credentialsProvider);
