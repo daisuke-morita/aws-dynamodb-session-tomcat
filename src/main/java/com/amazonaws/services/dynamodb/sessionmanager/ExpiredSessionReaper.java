@@ -60,10 +60,11 @@ public class ExpiredSessionReaper {
         this.tableName = tableName;
         this.expirationTimeInMillis = expirationTimeInMillis;
 
+        int initialDelay = new Random().nextInt((int)reaperInterval) + 1;
         executor = new ScheduledThreadPoolExecutor(1, new ExpiredSessionReaperThreadFactory());
         executor.scheduleAtFixedRate(
             new ExpiredSessionReaperRunnable(),
-            reaperInterval,
+            initialDelay,
             reaperInterval,
             TimeUnit.HOURS);
     }
