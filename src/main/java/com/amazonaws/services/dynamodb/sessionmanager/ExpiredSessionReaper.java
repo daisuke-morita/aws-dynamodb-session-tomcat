@@ -27,12 +27,15 @@ import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.ScanRequest;
 import com.amazonaws.services.dynamodbv2.model.ScanResult;
 import com.amazonaws.services.dynamodbv2.model.Select;
+import org.apache.juli.logging.Log;
 
 /**
  * A background process to periodically scan and remove any expired session data
  * from the session table in Amazon DynamoDB.
  */
 public class ExpiredSessionReaper {
+
+    private Log logger;
 
     private AmazonDynamoDBClient dynamo;
     private String tableName;
@@ -55,10 +58,12 @@ public class ExpiredSessionReaper {
             AmazonDynamoDBClient dynamo,
             String tableName,
             long expirationTimeInMillis,
-            long reaperInterval) {
+            long reaperInterval,
+            Log logger) {
         this.dynamo = dynamo;
         this.tableName = tableName;
         this.expirationTimeInMillis = expirationTimeInMillis;
+        this.logger = logger;
 
         int initialDelay = new Random().nextInt((int)reaperInterval) + 1;
         executor = new ScheduledThreadPoolExecutor(1, new ExpiredSessionReaperThreadFactory());
@@ -103,6 +108,8 @@ public class ExpiredSessionReaper {
      * Scans the session table for expired sessions and deletes them.
      */
     private void reapExpiredSessions() {
+        logger.info("reaping expired sessions ...");
+
         ScanRequest request = new ScanRequest(tableName);
         request.setSelect(Select.SPECIFIC_ATTRIBUTES);
         request.withAttributesToGet(
@@ -119,6 +126,7 @@ public class ExpiredSessionReaper {
                 if (isExpired(Long.parseLong(item.get(SessionTableAttributes.LAST_UPDATED_AT_ATTRIBUTE).getN()))) {
                     String sessionId = item.get(SessionTableAttributes.SESSION_ID_KEY).getS();
                     DynamoUtils.deleteSession(dynamo, tableName, sessionId);
+                    logger.info("  deleted: " + sessionId);
                 }
             }
         } while (scanResult.getLastEvaluatedKey() != null);
