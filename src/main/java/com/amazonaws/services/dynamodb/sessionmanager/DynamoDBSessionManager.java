@@ -49,6 +49,7 @@ public class DynamoDBSessionManager extends PersistentManagerBase {
     private long readCapacityUnits = 10;
     private long writeCapacityUnits = 5;
     private boolean createIfNotExist = true;
+    private long reaperInterval = 12;
     private String tableName = DEFAULT_TABLE_NAME;
 
     private final DynamoDBSessionStore dynamoSessionStore;
@@ -120,6 +121,8 @@ public class DynamoDBSessionManager extends PersistentManagerBase {
         this.createIfNotExist = createIfNotExist;
     }
 
+    public void setReaperInterval(long reaperInterval) { this.reaperInterval = reaperInterval; }
+
 
     //
     // Private Interface
@@ -143,7 +146,8 @@ public class DynamoDBSessionManager extends PersistentManagerBase {
         dynamoSessionStore.setDynamoClient(dynamo);
         dynamoSessionStore.setSessionTableName(this.tableName);
 
-        expiredSessionReaper = new ExpiredSessionReaper(dynamo, tableName, this.maxInactiveInterval);
+        expiredSessionReaper = new ExpiredSessionReaper(
+            dynamo, tableName, this.maxInactiveInterval, this.reaperInterval);
     }
 
     @Override

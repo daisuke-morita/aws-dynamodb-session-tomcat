@@ -29,9 +29,8 @@ import com.amazonaws.services.dynamodbv2.model.ScanResult;
 import com.amazonaws.services.dynamodbv2.model.Select;
 
 /**
- * A background process to periodically scan (once every 12 hours, with an
- * initial random jitter) and remove any expired session data from the session
- * table in Amazon DynamoDB.
+ * A background process to periodically scan and remove any expired session data
+ * from the session table in Amazon DynamoDB.
  */
 public class ExpiredSessionReaper {
 
@@ -52,14 +51,21 @@ public class ExpiredSessionReaper {
      *            The time, in milliseconds, after which a session is considered
      *            expired and should be removed from the session table.
      */
-    public ExpiredSessionReaper(AmazonDynamoDBClient dynamo, String tableName, long expirationTimeInMillis) {
+    public ExpiredSessionReaper(
+            AmazonDynamoDBClient dynamo,
+            String tableName,
+            long expirationTimeInMillis,
+            long reaperInterval) {
         this.dynamo = dynamo;
         this.tableName = tableName;
         this.expirationTimeInMillis = expirationTimeInMillis;
 
-        int initialDelay = new Random().nextInt(5) + 1;
         executor = new ScheduledThreadPoolExecutor(1, new ExpiredSessionReaperThreadFactory());
-        executor.scheduleAtFixedRate(new ExpiredSessionReaperRunnable(), initialDelay, 12, TimeUnit.HOURS);
+        executor.scheduleAtFixedRate(
+            new ExpiredSessionReaperRunnable(),
+            reaperInterval,
+            reaperInterval,
+            TimeUnit.HOURS);
     }
 
     /**
