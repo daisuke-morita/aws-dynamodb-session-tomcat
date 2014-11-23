@@ -110,7 +110,7 @@ public class ExpiredSessionReaper {
      * Scans the session table for expired sessions and deletes them.
      */
     private void reapExpiredSessions() {
-        logger.info("reaping expired sessions ...");
+        logger.info("reaping expired sessions {");
 
         ScanRequest request = new ScanRequest(tableName);
         request.setSelect(Select.SPECIFIC_ATTRIBUTES);
@@ -124,16 +124,15 @@ public class ExpiredSessionReaper {
 
             scanResult = dynamo.scan(request);
             List<Map<String,AttributeValue>> items = scanResult.getItems();
-            logger.info("  sessions: " + items.size());
+            logger.info("sessions: " + items.size());
             for (Map<String, AttributeValue> item : items) {
                 if (isExpired(Long.parseLong(item.get(SessionTableAttributes.LAST_UPDATED_AT_ATTRIBUTE).getN()))) {
                     String sessionId = item.get(SessionTableAttributes.SESSION_ID_KEY).getS();
                     DynamoUtils.deleteSession(dynamo, tableName, sessionId);
-                    logger.info("  deleted: " + sessionId);
                 }
             }
         } while (scanResult.getLastEvaluatedKey() != null);
-        logger.info("  done.");
+        logger.info("} done.");
     }
 
     /**

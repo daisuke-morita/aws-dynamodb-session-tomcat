@@ -121,7 +121,9 @@ public class DynamoDBSessionManager extends PersistentManagerBase {
         this.createIfNotExist = createIfNotExist;
     }
 
-    public void setReaperInterval(long reaperInterval) { this.reaperInterval = reaperInterval; }
+    public void setReaperInterval(long reaperInterval) {
+        this.reaperInterval = reaperInterval;
+    }
 
 
     //
@@ -216,6 +218,10 @@ public class DynamoDBSessionManager extends PersistentManagerBase {
 
     public static void debug(String s) {
         logger.debug(s);
+    }
+
+    public static void info(String s) {
+        logger.info(s);
     }
 
     public static void warn(String s) {

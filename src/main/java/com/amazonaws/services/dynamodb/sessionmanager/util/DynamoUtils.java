@@ -78,6 +78,7 @@ public class DynamoUtils {
 
         try {
             dynamo.deleteItem(request);
+            DynamoDBSessionManager.info("session deleted: " + sessionId);
         } catch (Exception e) {
             DynamoDBSessionManager.warn("Unable to delete session " + sessionId, e);
         }
